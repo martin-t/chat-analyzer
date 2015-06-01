@@ -4,14 +4,13 @@ from collections import namedtuple
 import datetime
 from bs4 import BeautifulSoup
 from dateutil import tz
-import matplotlib
-import matplotlib.pyplot as plt
-from matplotlib.pyplot import xlim
 import time
 import dateutil.parser
 from pytz import tzinfo
 import pytz
-import numpy as np
+import matplotlib
+import matplotlib.pyplot as plt
+from matplotlib.pyplot import xlim
 
 
 HEX_BLUE = '#0000ff'
@@ -32,7 +31,8 @@ def maximize():
     if backend == 'Qt4Agg':
         mng.window.showMaximized()
     elif backend == 'TkAgg':
-        mng.window.state('zoomed')
+        mng.resize(*mng.window.maxsize())
+        # mng.window.state('zoomed')  # try this instead on windoze
     elif backend == 'wxAgg':
         mng.frame.Maximize(True)
 
