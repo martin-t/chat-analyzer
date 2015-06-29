@@ -20,8 +20,7 @@ Thread = namedtuple('Thread', ['names', 'messages'])
 Message = namedtuple('Message', ['name', 'date', 'text'])
 
 path = 'facebook-downloaded/html/messages.htm'
-my_name = 'Martin Taibr'
-
+my_name = None
 
 def maximize():
     backend = matplotlib.get_backend()
@@ -38,6 +37,11 @@ def maximize():
 
 
 def parse(soup: BeautifulSoup) -> list:
+    div = soup.find('div', {'class': 'contents'})
+    h = next(div.children)
+    global my_name
+    my_name = h.text
+
     threads = []
 
     for thread_html in soup.find_all('div', {'class': 'thread'}):
