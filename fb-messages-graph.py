@@ -169,6 +169,7 @@ def print_all(threads: list):
 def main():
     matplotlib.rc('font', family='DejaVu Sans')  # default font doesn't support some chars
     t_start = time.time()
+    print("Loading...")
     soup = BeautifulSoup(open(path))
     t_loaded = time.time()
     print("Loaded in:", t_loaded - t_start)
