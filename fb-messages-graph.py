@@ -71,7 +71,51 @@ def parse(soup: BeautifulSoup) -> list:
     return sorted(threads, key=lambda thread: thread.messages[0].date)
 
 
+def filter_(threads: list):
+    new_threads = []
+
+    for thread in threads:
+        # pick only some threads, remove my name
+        if my_name not in thread.names:
+            continue
+        if len(thread.names) > 2:
+            continue
+        thread.names.remove(my_name)
+        new_threads.append(thread)
+
+    return new_threads
+
+
+def generate_stats(threads: list):
+    t_start = time.time()
+
+    for thread in threads:
+        name = thread.names[0]
+        msgs_me = 0
+        msgs_them = 0
+        words_me = 0
+        words_them = 0
+        for message in thread.messages:
+            if message.name == my_name:
+                msgs_me += 1
+                words_me += len(message.text.split())
+            else:
+                msgs_them += 1
+                words_them += len(message.text.split())
+
+        print(name)
+        print(str.format("\tMessages me: {0}", msgs_me))
+        print(str.format("\tMessages them: {0}", msgs_them))
+        print(str.format("\tWords me: {0}", words_me))
+        print(str.format("\tWords them: {0}", words_them))
+
+    t_generated = time.time()
+    print("Stats generated in:", t_generated - t_start)
+
+
 def plot(threads: list):
+    t_start = time.time()
+
     dates = []  # X
     vals = []  # Y
     first_dates = []  # first message in a day
@@ -83,16 +127,9 @@ def plot(threads: list):
     last_colors = []
 
     val_to_name = {}
-    val = 0  #
+    val = 0  # the line we plot on
     for thread in threads:
-        # pick only some threads, remove my name
-        names = thread.names
-        if my_name not in names:
-            continue
-        if len(names) > 2:
-            continue
-        names.remove(my_name)
-        val_to_name[val] = str.format('{0} ({1})', names[0], len(thread.messages))
+        val_to_name[val] = str.format('{0} ({1})', thread.names[0], len(thread.messages))
 
         # plot messages
         last_date = datetime.datetime(1970, 1, 1, tzinfo=pytz.timezone('GMT'))
@@ -137,6 +174,7 @@ def plot(threads: list):
         val += 1
 
     t_generated = time.time()
+    print("Message summary generated in:", t_generated - t_generated)
 
     plt.scatter(first_dates, first_vals, s=50, c=first_colors, marker=2)
     plt.scatter(last_dates, last_vals, s=50, c=last_colors, marker=3)
@@ -144,7 +182,7 @@ def plot(threads: list):
     ax = plt.subplot()
     ax.xaxis.grid()
     ax.yaxis.grid()
-    ax.yaxis.set_ticks(range(0, len(threads) - 1))
+    ax.yaxis.set_ticks(range(0, len(threads)))
     ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, pos: val_to_name.get(x)))
     lims = xlim()
     xlim(lims[0], datetime.datetime.now())  # align right to today
@@ -152,10 +190,9 @@ def plot(threads: list):
     maximize()
 
     t_plotted = time.time()
+    print("Message summary plotted in:", t_plotted - t_generated)
 
     #plt.show()
-
-    return t_generated, t_plotted
 
 
 def print_all(threads: list):
@@ -180,9 +217,10 @@ def main():
     threads = parse(soup)
     t_parsed = time.time()
     print("Parsed in:", t_parsed - t_loaded)
-    t_generated, t_plotted = plot(threads)
-    print("Generated in:", t_generated - t_parsed)
-    print("Plotted in:", t_plotted - t_generated)
+    threads = filter_(threads)
+    generate_stats(threads)
+    plot(threads)
+
     plt.show()
 
 
