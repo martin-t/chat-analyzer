@@ -22,6 +22,7 @@ Message = namedtuple('Message', ['name', 'date', 'text'])
 path = 'facebook-downloaded/html/messages.htm'
 my_name = None
 
+
 def maximize():
     backend = matplotlib.get_backend()
     mng = plt.get_current_fig_manager()
